@@ -4,6 +4,7 @@ import { DatabaseModule } from 'database';
 import { AppController } from './app.controller';
 import { validate } from 'environment';
 import { AuthModule } from 'app/auth/auth.module';
+import { StreamModule } from 'app/stream/stream.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from 'app/auth/auth.module';
     }),
     DatabaseModule,
     AuthModule,
+    StreamModule,
   ],
   controllers: [AppController],
   providers: [],
