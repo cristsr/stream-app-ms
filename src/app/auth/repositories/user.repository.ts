@@ -19,7 +19,7 @@ export class UserRepository {
     return this.userModel.find().exec();
   }
 
-  findOne(id: string): Promise<UserDocument> {
+  findById(id: string): Promise<UserDocument> {
     return this.userModel.findById(id).exec();
   }
 

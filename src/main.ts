@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { ENV } from 'environment';
+import { listRoutes } from 'utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,8 +20,8 @@ async function bootstrap() {
 
   if (showDocs) {
     const config = new DocumentBuilder()
-      .setTitle('Boilerplate')
-      .setDescription('The Boilerplate API description')
+      .setTitle('Stream api')
+      .setDescription('The stream API description')
       .setVersion('1.0')
       .build();
 
@@ -41,19 +42,3 @@ async function bootstrap() {
   Logger.log(`App running in port ${port} at env ${env}`, 'Bootstrap');
 }
 bootstrap();
-
-function listRoutes(app: INestApplication) {
-  const server = app.getHttpServer();
-  const router = server._events.request._router;
-  const availableRoutes: [] = router?.stack
-    .filter((layer) => !!layer.route)
-    .map((layer) => ({
-      route: {
-        path: layer.route?.path,
-        method: layer.route?.stack[0]?.method,
-      },
-    }));
-
-  Logger.log('API list:', 'Bootstrap');
-  console.table(availableRoutes);
-}

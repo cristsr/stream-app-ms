@@ -1,4 +1,4 @@
-import { IsEmail, IsJWT, IsString } from 'class-validator';
+import { IsEmail, IsJWT, IsNumber, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UserRes {
@@ -43,4 +43,15 @@ export class Credentials {
 
   @IsString()
   expiresInRefresh: number;
+}
+
+export class JwtPayload {
+  @IsString()
+  sub: string;
+
+  @IsNumber()
+  iat: number;
+
+  @IsNumber()
+  exp: number;
 }

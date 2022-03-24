@@ -5,7 +5,6 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators';
 import { AuthService } from '../services';
@@ -16,9 +15,7 @@ export class AuthGuard implements CanActivate {
 
   constructor(private reflector: Reflector, private authService: AuthService) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -36,15 +33,19 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Jwt token is missing');
     }
 
-    return this.authService
+    const payload = await this.authService
       .verifyToken(authorization)
-      .then((user) => {
-        this.logger.log('Jwt token is valid');
-        request.user = user;
-        return true;
-      })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error('Jwt token is invalid: ' + e.message);
         throw new UnauthorizedException('Jwt token is invalid');
       });
+
+    const user = await this.authService.profile(payload.sub);
+
+    this.logger.log('Jwt token is valid', payload);
+
+    request.user = user;
+
+    return true;
   }
 }

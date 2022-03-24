@@ -1,4 +1,4 @@
-import { IsEmail, IsJWT, IsString } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 
 export class RegisterUserReq {
   @IsString()
@@ -23,14 +23,4 @@ export class LoginUserReq {
 
   @IsString()
   password: string;
-}
-
-export class RefreshTokenReq {
-  @IsJWT()
-  refresh: string;
-}
-
-export class JwtReq {
-  @IsString()
-  authorization: string;
 }

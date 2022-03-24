@@ -13,6 +13,7 @@ import {
   RegisterUserReq,
   LoginUserRes,
   UserRes,
+  JwtPayload,
 } from 'app/auth/dtos';
 import { ENV } from 'environment';
 import { UserDocument } from '../schemas/user.schema';
@@ -26,11 +27,6 @@ export class AuthService {
     private userRepository: UserRepository,
     private jwtService: JwtService,
   ) {}
-
-  verifyToken(token: string) {
-    token = token.replace(/^Bearer\s+/, '');
-    return this.jwtService.verifyAsync(token);
-  }
 
   async login(user: LoginUserReq): Promise<LoginUserRes> {
     const userDocument: UserDocument = await this.userRepository.findByEmail(
@@ -88,6 +84,30 @@ export class AuthService {
     await this.userRepository.register(user);
 
     this.logger.log('User registered successfully: ' + user.email);
+  }
+
+  verifyToken(token: string): Promise<JwtPayload> {
+    const value = token.replace(/^Bearer\s+/, '');
+
+    return this.jwtService.verifyAsync(value, {
+      secret: this.config.get(ENV.JWT_SECRET),
+    });
+  }
+
+  async profile(id: string): Promise<UserRes> {
+    const userDocument = await this.userRepository.findById(id).catch((e) => {
+      this.logger.error(e.message);
+      throw new NotFoundException('User not found');
+    });
+
+    const userRes: UserRes = new UserRes();
+    userRes.id = userDocument.id;
+    userRes.email = userDocument.email;
+    userRes.name = userDocument.name;
+    userRes.username = userDocument.username;
+    userRes.image = userDocument.image;
+
+    return userRes;
   }
 
   async refresh(user) {

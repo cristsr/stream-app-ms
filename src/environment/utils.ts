@@ -8,9 +8,7 @@ export function validate(config: Record<string, unknown>) {
 
   const validatedConfig = plainToClass(Environment, config);
 
-  const errors = validateSync(validatedConfig, {
-    skipMissingProperties: false,
-  });
+  const errors = validateSync(validatedConfig);
 
   if (errors.length > 0) {
     errors

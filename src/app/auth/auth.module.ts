@@ -10,7 +10,10 @@ import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
-    JwtModule.register({}),
+    JwtModule.register({
+      secret: 'secretKey',
+      signOptions: { expiresIn: '1h' },
+    }),
     MongooseModule.forFeature([
       {
         name: User.name,
