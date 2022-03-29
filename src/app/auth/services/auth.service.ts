@@ -1,22 +1,26 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UserRepository } from '../repositories';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 import { compare, hash } from 'bcrypt';
+
 import {
   LoginUserReq,
   RegisterUserReq,
   LoginUserRes,
-  UserRes,
+  UserDto,
   JwtPayload,
 } from 'app/auth/dtos';
+import { UserRepository } from 'app/auth/repositories';
 import { ENV } from 'environment';
-import { UserDocument } from '../schemas/user.schema';
+import { User } from 'app/auth/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -26,18 +30,25 @@ export class AuthService {
     private config: ConfigService,
     private userRepository: UserRepository,
     private jwtService: JwtService,
+    @InjectMapper() private mapper: Mapper,
   ) {}
 
-  async login(user: LoginUserReq): Promise<LoginUserRes> {
-    const userDocument: UserDocument = await this.userRepository.findByEmail(
-      user.email,
-    );
+  async login(loginUser: LoginUserReq): Promise<LoginUserRes> {
+    const user: User = await this.userRepository.findByEmail(loginUser.email);
 
-    if (!userDocument) {
+    if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const matchPassword = await compare(user.password, userDocument.password);
+    const matchPassword = await compare(
+      loginUser.password,
+      user.password,
+    ).catch((e) => {
+      this.logger.error(e);
+      throw new InternalServerErrorException(
+        'Error comparing passwords: ' + e.message,
+      );
+    });
 
     if (!matchPassword) {
       throw new BadRequestException('Invalid password');
@@ -45,7 +56,7 @@ export class AuthService {
 
     const token = this.jwtService.sign(
       {
-        sub: userDocument.id,
+        sub: user.id,
       },
       {
         secret: this.config.get(ENV.JWT_SECRET),
@@ -53,14 +64,11 @@ export class AuthService {
       },
     );
 
-    const userRes: UserRes = new UserRes();
-    userRes.id = userDocument.id;
-    userRes.email = userDocument.email;
-    userRes.name = userDocument.name;
-    userRes.username = userDocument.username;
-    userRes.image = userDocument.image;
+    this.mapper.createMap(User, UserDto);
 
-    this.logger.log(userDocument);
+    const userRes = this.mapper.map(user, UserDto, User);
+
+    this.logger.log(userRes);
 
     return {
       token,
@@ -94,20 +102,15 @@ export class AuthService {
     });
   }
 
-  async profile(id: string): Promise<UserRes> {
+  async profile(id: string): Promise<UserDto> {
     const userDocument = await this.userRepository.findById(id).catch((e) => {
       this.logger.error(e.message);
       throw new NotFoundException('User not found');
     });
 
-    const userRes: UserRes = new UserRes();
-    userRes.id = userDocument.id;
-    userRes.email = userDocument.email;
-    userRes.name = userDocument.name;
-    userRes.username = userDocument.username;
-    userRes.image = userDocument.image;
+    this.mapper.createMap(User, UserDto);
 
-    return userRes;
+    return this.mapper.map(userDocument, UserDto, User);
   }
 
   async refresh(user) {

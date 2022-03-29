@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'app/auth/schemas/user.schema';
 import { RegisterUserReq } from 'app/auth/dtos';
+import { classToPlain, plainToClass } from 'class-transformer';
 
 @Injectable()
 export class UserRepository {
@@ -19,12 +20,28 @@ export class UserRepository {
     return this.userModel.find().exec();
   }
 
-  findById(id: string): Promise<UserDocument> {
-    return this.userModel.findById(id).exec();
+  async findById(id: string): Promise<User> {
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      return null;
+    }
+
+    const rawUser = classToPlain(user.toJSON({ virtuals: true }));
+
+    return plainToClass(User, rawUser, { excludePrefixes: ['_'] });
   }
 
-  findByEmail(email: string): Promise<UserDocument> {
-    return this.userModel.findOne({ email }).exec();
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email }).exec();
+
+    if (!user) {
+      return null;
+    }
+
+    const rawUser = classToPlain(user.toJSON({ virtuals: true }));
+
+    return plainToClass(User, rawUser, { excludePrefixes: ['_'] });
   }
 
   update(id: string, updateUserDto): Promise<UserDocument> {
