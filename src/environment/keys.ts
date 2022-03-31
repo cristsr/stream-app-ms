@@ -27,6 +27,9 @@ export class Environment {
   @Transform(({ value }) => value === 'true')
   @IsBoolean()
   SHOW_DOCS: boolean = null;
+
+  @IsString()
+  HLS_SERVER: string = null;
 }
 
 export const ENV = mapEnvironmentKeys<Environment>(Environment);
