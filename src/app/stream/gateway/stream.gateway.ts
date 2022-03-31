@@ -34,10 +34,10 @@ export class StreamGateway implements OnGatewayConnection {
   }
 
   @OnEvent(StreamEvents.REMOVE)
-  removeStream(stream: StreamRes) {
-    this.logger.log('Streamer disconnected ' + stream.id);
-    this.onlineStreams.delete(stream.id);
-    this.server.emit('remove-stream', stream.id);
+  removeStream(key: string) {
+    this.logger.log('Streamer disconnected ' + key);
+    this.onlineStreams.delete(key);
+    this.server.emit('remove-stream', key);
   }
 
   private getStreams(): StreamRes[] {
