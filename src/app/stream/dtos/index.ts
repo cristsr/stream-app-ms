@@ -33,3 +33,11 @@ export class StreamRes {
   @AutoMap({ typeFn: () => UserDto })
   user: UserDto;
 }
+
+export class ChangeTitleDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  title: string;
+}
