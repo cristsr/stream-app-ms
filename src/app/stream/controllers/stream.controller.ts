@@ -38,6 +38,7 @@ export class StreamController {
   @Public()
   @Delete('remove/:key')
   removeStream(@Param('key') key: string) {
+    console.log('remove stream', key);
     this.eventEmitter.emit(StreamEvents.REMOVE, key);
   }
 }
