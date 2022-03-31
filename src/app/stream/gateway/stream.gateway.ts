@@ -28,12 +28,14 @@ export class StreamGateway implements OnGatewayConnection {
 
   @OnEvent(StreamEvents.ADD)
   addStream(stream: StreamRes) {
+    this.logger.log('New streamer connected ' + stream.id);
     this.onlineStreams.set(stream.id, stream);
     this.server.emit('add-stream', stream);
   }
 
   @OnEvent(StreamEvents.REMOVE)
   removeStream(stream: StreamRes) {
+    this.logger.log('Streamer disconnected ' + stream.id);
     this.onlineStreams.delete(stream.id);
     this.server.emit('remove-stream', stream.id);
   }
