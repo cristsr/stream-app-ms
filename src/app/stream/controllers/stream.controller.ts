@@ -41,7 +41,6 @@ export class StreamController implements OnModuleInit {
 
     const stream = this.mapper.map(data, StreamRes, StreamReq);
     stream.title = 'Stream Title';
-    stream.description = 'Stream Description';
     // // TODO: hardcoded stream thumbnail
     stream.thumbnail =
       'https://di.phncdn.com/videos/202012/24/379000862/thumbs_10/(m=eafTGgaaaa)(mh=87fbyekHghXDTL-D)8.jpg';
