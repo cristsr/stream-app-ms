@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -23,7 +24,7 @@ import { ENV } from 'environment';
 import { User } from 'app/auth/schemas/user.schema';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   private logger = new Logger(AuthService.name);
 
   constructor(
@@ -32,6 +33,10 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectMapper() private mapper: Mapper,
   ) {}
+
+  onModuleInit(): void {
+    this.mapper.createMap(User, UserDto);
+  }
 
   async login(loginUser: LoginUserReq): Promise<LoginUserRes> {
     const user: User = await this.userRepository.findByEmail(loginUser.email);
@@ -63,8 +68,6 @@ export class AuthService {
         expiresIn: this.config.get(ENV.JWT_EXPIRES_IN),
       },
     );
-
-    this.mapper.createMap(User, UserDto);
 
     const userRes = this.mapper.map(user, UserDto, User);
 
