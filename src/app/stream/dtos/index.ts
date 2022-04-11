@@ -1,6 +1,4 @@
-import { IsString, ValidateNested } from 'class-validator';
-import { UserDto } from 'app/auth/dtos';
-import { Type } from 'class-transformer';
+import { IsString } from 'class-validator';
 import { AutoMap } from '@automapper/classes';
 
 export class StreamReq {
@@ -12,29 +10,30 @@ export class StreamReq {
   @AutoMap()
   key: string;
 
-  @Type(() => UserDto)
-  @ValidateNested()
-  @AutoMap({ typeFn: () => UserDto })
-  user: UserDto;
+  @IsString()
+  user: string;
 }
 
 export class StreamRes {
-  @AutoMap()
+  @IsString()
   id: string;
 
+  @IsString()
   title: string;
 
-  url: string;
+  @IsString()
+  url?: string;
 
+  @IsString()
   thumbnail: string;
 
-  @AutoMap({ typeFn: () => UserDto })
-  user: UserDto;
+  @IsString()
+  username: string;
 }
 
 export class ChangeTitleDto {
   @IsString()
-  id: string;
+  username: string;
 
   @IsString()
   title: string;

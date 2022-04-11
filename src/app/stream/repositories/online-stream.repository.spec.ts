@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OnlineStream } from './online-stream';
+import { OnlineStreamRepository } from './online-stream.repository';
 
 describe('StreamService', () => {
-  let service: OnlineStream;
+  let service: OnlineStreamRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OnlineStream],
+      providers: [OnlineStreamRepository],
     }).compile();
 
-    service = module.get<OnlineStream>(OnlineStream);
+    service = module.get<OnlineStreamRepository>(OnlineStreamRepository);
   });
 
   it('should be defined', () => {

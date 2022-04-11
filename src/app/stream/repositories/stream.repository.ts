@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Stream, StreamDocument } from '../schemas/streamSchema';
-import { classToPlain, plainToClass } from 'class-transformer';
+import { Stream, StreamDocument } from 'app/stream/schemas';
 
 @Injectable()
-export class StreamKeyRepository {
+export class StreamRepository {
   constructor(
     @InjectModel(Stream.name)
     private streamKey: Model<StreamDocument>,
@@ -25,7 +24,14 @@ export class StreamKeyRepository {
       return null;
     }
 
-    return stream;
+    return stream.toObject({
+      virtuals: true,
+      transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        return ret;
+      },
+    });
   }
 
   async create(user: string, key: string): Promise<void> {

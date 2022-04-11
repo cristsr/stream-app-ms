@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { ENV } from 'environment';
-import { listRoutes } from 'utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,8 +35,6 @@ async function bootstrap() {
   const env = configService.get(ENV.ENV);
 
   await app.listen(port);
-
-  listRoutes(app);
 
   Logger.log(`App running in port ${port} at env ${env}`, 'Bootstrap');
 }

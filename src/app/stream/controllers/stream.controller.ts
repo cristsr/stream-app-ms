@@ -1,64 +1,57 @@
 import {
-  Body,
   Controller,
   Delete,
+  Get,
   Logger,
-  OnModuleInit,
+  NotFoundException,
   Param,
-  Post,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Public } from 'app/auth/decorators';
+import { CurrentUser, Public } from 'app/auth/decorators';
 import { StreamEvents } from 'app/stream/constants';
-import { StreamReq, StreamRes } from 'app/stream/dtos';
-import { StreamService } from '../services/stream.service';
-import { ConfigService } from '@nestjs/config';
-import { ENV } from 'environment';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
+import { StreamService } from 'app/stream/services';
 import { UserDto } from 'app/auth/dtos';
 
 @Controller('stream')
-export class StreamController implements OnModuleInit {
+export class StreamController {
   private logger = new Logger(StreamController.name);
 
   constructor(
     private eventEmitter: EventEmitter2,
     private streamService: StreamService,
-    private config: ConfigService,
-    @InjectMapper() private mapper: Mapper,
   ) {}
 
-  onModuleInit(): any {
-    this.mapper.createMap(StreamReq, StreamRes);
-    this.mapper.createMap(UserDto, UserDto);
+  @Public()
+  @Get(':username')
+  async getStreamByUsername(@Param('username') username: string) {
+    this.logger.log(`Getting stream for user ${username}`);
+    return this.streamService.getStreamByUsername(username);
   }
 
   @Public()
-  @Post()
-  async addStream(@Body() data: StreamReq) {
-    const hlsServer = this.config.get(ENV.HLS_SERVER);
+  @Get('connect/:key')
+  async connectStream(@Param('key') key: string) {
+    this.logger.log(`Connecting stream ${key}`);
+    const stream = await this.streamService.getStreamByKey(key);
 
-    const stream = this.mapper.map(data, StreamRes, StreamReq);
-    stream.title = 'Stream Title';
-    // // TODO: hardcoded stream thumbnail
-    stream.thumbnail =
-      'https://di.phncdn.com/videos/202012/24/379000862/thumbs_10/(m=eafTGgaaaa)(mh=87fbyekHghXDTL-D)8.jpg';
-    stream.user = data.user;
-    stream.url = hlsServer.replace('{KEY}', data.key);
-
-    this.logger.log(stream);
+    if (!stream) {
+      throw new NotFoundException(`Stream with key ${key} not found`);
+    }
 
     this.eventEmitter.emit(StreamEvents.ADD, stream);
-
     return stream;
   }
 
   @Public()
-  @Delete(':key')
-  removeStream(@Param('key') key: string) {
-    this.logger.log('remove stream key: ' + key);
+  @Delete(':id')
+  disconnectStream(@Param('id') key: string) {
+    this.logger.log(`Stream ${key} disconnected`);
     this.eventEmitter.emit(StreamEvents.REMOVE, key);
     return key;
+  }
+
+  @Get('restore')
+  restore(@CurrentUser() user: UserDto) {
+    return this.streamService.restoreKey(user);
   }
 }

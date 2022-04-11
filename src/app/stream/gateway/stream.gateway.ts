@@ -5,11 +5,12 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChangeTitleDto, StreamRes } from 'app/stream/dtos';
-import { OnEvent } from '@nestjs/event-emitter';
 import { StreamEvents } from 'app/stream/constants';
-import { Logger } from '@nestjs/common';
+import { OnlineStreamRepository } from 'app/stream/repositories';
 
 @WebSocketGateway({
   namespace: 'stream',
@@ -20,44 +21,39 @@ export class StreamGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  private onlineStreams = new Map<string, StreamRes>();
+  constructor(private onlineStream: OnlineStreamRepository) {}
 
-  handleConnection(client: Socket) {
-    this.logger.log('New client connected ' + client.id);
-    const streams = this.getStreams();
-    client.emit('streams', streams);
+  handleConnection(socket: Socket) {
+    this.logger.log('New socket connected ' + socket.id);
+    const streams = this.onlineStream.getAll();
+    socket.emit('streams', streams);
   }
 
   @SubscribeMessage('update-title')
-  async changeTitle(client: Socket, @MessageBody() data: ChangeTitleDto) {
-    this.logger.log('Change title ' + data.title);
-
-    const stream = this.onlineStreams.get(data.id);
+  async changeTitle(@MessageBody() { username, title }: ChangeTitleDto) {
+    this.logger.log(`${username} changed title to ${title}`);
+    const stream = this.onlineStream.getByUsername(username);
 
     if (!stream) {
+      this.logger.error(`${username} streamer not found`);
       return;
     }
 
-    stream.title = data.title;
-
+    stream.title = title;
     this.server.emit('update-title', stream);
   }
 
   @OnEvent(StreamEvents.ADD)
   addStream(stream: StreamRes) {
-    this.logger.log('New streamer connected ' + stream.id);
-    this.onlineStreams.set(stream.id, stream);
+    this.logger.log(`Add stream ${stream.username}`);
+    this.onlineStream.add(stream);
     this.server.emit('add-stream', stream);
   }
 
   @OnEvent(StreamEvents.REMOVE)
-  removeStream(key: string) {
-    this.logger.log('Streamer disconnected ' + key);
-    this.onlineStreams.delete(key);
-    this.server.emit('remove-stream', key);
-  }
-
-  private getStreams(): StreamRes[] {
-    return Array.from(this.onlineStreams.values());
+  removeStream(username: string) {
+    this.logger.log('Streamer disconnected ' + username);
+    this.onlineStream.remove(username);
+    this.server.emit('remove-stream', username);
   }
 }

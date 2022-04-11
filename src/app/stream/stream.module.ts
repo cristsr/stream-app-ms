@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Stream, StreamSchema } from './schemas/streamSchema';
-import { StreamService } from './services/stream.service';
-import { StreamKeyController } from './controllers/stream-key.controller';
-import { StreamKeyRepository } from './repositories/stream-key.repository';
-import { StreamController } from './controllers/stream.controller';
-import { StreamGateway } from './gateway/stream.gateway';
-import { OnlineStream } from './providers/online-stream';
-import { AuthModule } from 'app/auth/auth.module';
+import { Stream, StreamSchema } from 'app/stream/schemas';
+import { StreamService } from 'app/stream/services';
+import { StreamController } from 'app/stream/controllers';
+import { StreamGateway } from 'app/stream/gateway';
+import {
+  StreamRepository,
+  OnlineStreamRepository,
+} from 'app/stream/repositories';
 
 @Module({
   imports: [
@@ -17,9 +17,13 @@ import { AuthModule } from 'app/auth/auth.module';
         schema: StreamSchema,
       },
     ]),
-    AuthModule,
   ],
-  controllers: [StreamKeyController, StreamController],
-  providers: [StreamGateway, StreamService, StreamKeyRepository, OnlineStream],
+  controllers: [StreamController],
+  providers: [
+    StreamGateway,
+    StreamService,
+    StreamRepository,
+    OnlineStreamRepository,
+  ],
 })
 export class StreamModule {}

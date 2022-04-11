@@ -5,6 +5,8 @@ export function listRoutes(app: INestApplication) {
 
   const router = server._events.request._router;
 
+  console.log(server._events.request._router);
+
   const availableRoutes: [] = router?.stack
     .filter((layer) => !!layer.route)
     .map((layer) => ({
