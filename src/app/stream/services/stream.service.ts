@@ -58,6 +58,7 @@ export class StreamService {
       .get(ENV.HLS_SERVER)
       .concat('/thumbnail/{KEY}.png')
       .replace('{KEY}', key);
+    stream.userpicture = document.user.image;
 
     return stream;
   }

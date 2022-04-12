@@ -29,6 +29,9 @@ export class StreamRes {
 
   @IsString()
   username: string;
+
+  @IsString()
+  userpicture: string;
 }
 
 export class ChangeTitleDto {
