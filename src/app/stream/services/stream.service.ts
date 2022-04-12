@@ -54,10 +54,13 @@ export class StreamService {
       .get(ENV.HLS_SERVER)
       .concat('/live/{KEY}/index.m3u8')
       .replace('{KEY}', key);
-    stream.thumbnail = this.configService
-      .get(ENV.HLS_SERVER)
-      .concat('/thumbnail/{KEY}.png')
-      .replace('{KEY}', key);
+    // stream.thumbnail = this.configService
+    //   .get(ENV.HLS_SERVER)
+    //   .concat('/thumbnail/{KEY}.png')
+    //   .replace('{KEY}', key);
+
+    stream.thumbnail =
+      'https://static-cdn.jtvnw.net/previews-ttv/live_user_valorant-440x248.jpg';
     stream.userpicture = document.user.image;
 
     return stream;
