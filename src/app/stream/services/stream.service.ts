@@ -78,4 +78,17 @@ export class StreamService {
 
     return stream;
   }
+
+  async getStreamKey(user: UserDto): Promise<[string, string]> {
+    const document = await this.streamRepository.findByUserId(user.id);
+
+    if (!document) {
+      this.logger.error(`Stream with user id ${user.id} not found`);
+      return [null, 'Stream not found'];
+    }
+
+    this.logger.log(`Stream with user id ${user.id} found`);
+
+    return [document.key, null];
+  }
 }

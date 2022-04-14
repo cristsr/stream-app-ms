@@ -50,7 +50,18 @@ export class StreamController {
     return key;
   }
 
-  @Get('restore')
+  @Get('key')
+  async getKey(@CurrentUser() user: UserDto) {
+    const [result, error] = await this.streamService.getStreamKey(user);
+
+    if (error) {
+      throw new NotFoundException(`Stream key not found`);
+    }
+
+    return result;
+  }
+
+  @Get('key/restore')
   restore(@CurrentUser() user: UserDto) {
     return this.streamService.restoreKey(user);
   }

@@ -9,7 +9,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChangeTitleDto, StreamRes } from 'app/stream/dtos';
-import { StreamEvents } from 'app/stream/constants';
+import { StreamEvents, StreamMessages } from 'app/stream/constants';
 import { OnlineStreamRepository } from 'app/stream/repositories';
 
 @WebSocketGateway({
@@ -23,13 +23,13 @@ export class StreamGateway implements OnGatewayConnection {
 
   constructor(private onlineStream: OnlineStreamRepository) {}
 
-  handleConnection(socket: Socket) {
+  async handleConnection(socket: Socket) {
     this.logger.log('New socket connected ' + socket.id);
     const streams = this.onlineStream.getAll();
     socket.emit('streams', streams);
   }
 
-  @SubscribeMessage('update-title')
+  @SubscribeMessage(StreamMessages.UPDATE_TITLE)
   async changeTitle(@MessageBody() { username, title }: ChangeTitleDto) {
     this.logger.log(`${username} changed title to ${title}`);
     const stream = this.onlineStream.getByUsername(username);
@@ -48,6 +48,9 @@ export class StreamGateway implements OnGatewayConnection {
     this.logger.log(`Add stream ${stream.username}`);
     this.onlineStream.add(stream);
     this.server.emit('add-stream', stream);
+
+    // create chat room
+    // this.server.
   }
 
   @OnEvent(StreamEvents.REMOVE)

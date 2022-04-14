@@ -10,8 +10,8 @@ import { IS_PUBLIC_KEY } from 'app/auth/decorators';
 import { AuthService } from 'app/auth/services';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  private logger = new Logger(AuthGuard.name);
+export class HttpGuard implements CanActivate {
+  private logger = new Logger(HttpGuard.name);
 
   constructor(private reflector: Reflector, private authService: AuthService) {}
 

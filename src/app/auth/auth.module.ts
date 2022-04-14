@@ -6,7 +6,7 @@ import { AuthService } from 'app/auth/services';
 import { AuthController } from 'app/auth/controllers';
 import { User, UserSchema } from 'app/auth/schemas';
 import { UserRepository } from 'app/auth/repositories';
-import { AuthGuard } from 'app/auth/guards';
+import { HttpGuard, WsGuard } from 'app/auth/guards';
 
 @Module({
   imports: [
@@ -26,9 +26,11 @@ import { AuthGuard } from 'app/auth/guards';
     UserRepository,
     {
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      useClass: HttpGuard,
     },
+    WsGuard,
   ],
   controllers: [AuthController],
+  exports: [AuthService, WsGuard],
 })
 export class AuthModule {}
