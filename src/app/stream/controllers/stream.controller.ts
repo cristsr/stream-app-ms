@@ -21,6 +21,24 @@ export class StreamController {
     private streamService: StreamService,
   ) {}
 
+  @Get('key')
+  async getKey(@CurrentUser() user: UserDto) {
+    console.log(user);
+
+    const [result, error] = await this.streamService.getStreamKey(user);
+
+    if (error) {
+      throw new NotFoundException(`Stream key not found`);
+    }
+
+    return result;
+  }
+
+  @Get('key/restore')
+  restore(@CurrentUser() user: UserDto) {
+    return this.streamService.restoreKey(user);
+  }
+
   @Public()
   @Get(':username')
   async getStreamByUsername(@Param('username') username: string) {
@@ -48,21 +66,5 @@ export class StreamController {
     this.logger.log(`Stream ${key} disconnected`);
     this.eventEmitter.emit(StreamEvents.REMOVE, key);
     return key;
-  }
-
-  @Get('key')
-  async getKey(@CurrentUser() user: UserDto) {
-    const [result, error] = await this.streamService.getStreamKey(user);
-
-    if (error) {
-      throw new NotFoundException(`Stream key not found`);
-    }
-
-    return result;
-  }
-
-  @Get('key/restore')
-  restore(@CurrentUser() user: UserDto) {
-    return this.streamService.restoreKey(user);
   }
 }

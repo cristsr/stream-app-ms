@@ -7,18 +7,15 @@ import { Stream, StreamDocument } from 'app/stream/schemas';
 export class StreamRepository {
   constructor(
     @InjectModel(Stream.name)
-    private streamKey: Model<StreamDocument>,
+    private stream: Model<StreamDocument>,
   ) {}
 
   findByUserId(id: string): Promise<Stream> {
-    return this.streamKey.findOne({ user: id }).exec();
+    return this.stream.findOne({ user: id }).exec();
   }
 
   async findByKey(key: string): Promise<Stream> {
-    const stream = await this.streamKey
-      .findOne({ key })
-      .populate('user')
-      .exec();
+    const stream = await this.stream.findOne({ key }).populate('user').exec();
 
     if (!stream) {
       return null;
@@ -35,10 +32,10 @@ export class StreamRepository {
   }
 
   async create(user: string, key: string): Promise<void> {
-    await this.streamKey.create({ user, key });
+    await this.stream.create({ user, key });
   }
 
   async update(user: string, key: string): Promise<void> {
-    await this.streamKey.updateOne({ user }, { key }).exec();
+    await this.stream.updateOne({ user }, { key }).exec();
   }
 }
