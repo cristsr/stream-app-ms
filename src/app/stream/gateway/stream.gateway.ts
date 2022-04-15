@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   SubscribeMessage,
@@ -44,8 +45,26 @@ export class StreamGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage(StreamMessages.JOIN_ROOM)
-  connectChat(@MessageBody() room: string) {
-    this.logger.log('New user joined to chat of ' + room);
+  connectChat(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
+    this.logger.log('New user joined to room ' + room);
+    socket.join(room);
+  }
+
+  @SubscribeMessage(StreamMessages.ROOM_MESSAGE)
+  async sendMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() payload: Record<string, string>,
+  ) {
+    this.logger.log(
+      'New message from ' + socket.id + ' to room ' + payload.room,
+    );
+    this.server.to(payload.room).emit(StreamMessages.ROOM_MESSAGE, payload);
+  }
+
+  @SubscribeMessage(StreamMessages.LEAVE_ROOM)
+  leaveRoom(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
+    this.logger.log('User left chat of ' + room);
+    socket.leave(room);
   }
 
   @OnEvent(StreamEvents.ADD)

@@ -4,8 +4,9 @@ export enum StreamEvents {
 }
 
 export enum StreamMessages {
-  VIEW = 'STREAM.VIEW',
   UPDATE_TITLE = 'STREAM.UPDATE_TITLE',
   ERRORS = 'STREAM.ERRORS',
   JOIN_ROOM = 'STREAM.JOIN_ROOM',
+  ROOM_MESSAGE = 'STREAM.ROOM_MESSAGE',
+  LEAVE_ROOM = 'STREAM.LEAVE_ROOM',
 }
