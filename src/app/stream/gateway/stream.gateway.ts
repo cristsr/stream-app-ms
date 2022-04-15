@@ -43,6 +43,11 @@ export class StreamGateway implements OnGatewayConnection {
     this.server.emit('update-title', stream);
   }
 
+  @SubscribeMessage(StreamMessages.JOIN_ROOM)
+  connectChat(@MessageBody() room: string) {
+    this.logger.log('New user joined to chat of ' + room);
+  }
+
   @OnEvent(StreamEvents.ADD)
   addStream(stream: StreamRes) {
     this.logger.log(`Add stream ${stream.username}`);
@@ -58,5 +63,11 @@ export class StreamGateway implements OnGatewayConnection {
     this.logger.log('Streamer disconnected ' + username);
     this.onlineStream.remove(username);
     this.server.emit('remove-stream', username);
+  }
+
+  run() {
+    this.server.on('', (socket, data) => {
+      console.log(data);
+    });
   }
 }

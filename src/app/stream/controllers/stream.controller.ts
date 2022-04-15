@@ -61,8 +61,8 @@ export class StreamController {
   }
 
   @Public()
-  @Delete(':id')
-  disconnectStream(@Param('id') key: string) {
+  @Delete('disconnect/:id')
+  disconnectStream(@Param(':id') key: string) {
     this.logger.log(`Stream ${key} disconnected`);
     this.eventEmitter.emit(StreamEvents.REMOVE, key);
     return key;
