@@ -62,9 +62,16 @@ export class StreamController {
 
   @Public()
   @Delete('disconnect/:key')
-  disconnectStream(@Param('key') key: string) {
+  async disconnectStream(@Param('key') key: string) {
     this.logger.log(`Stream ${key} disconnected`);
-    this.eventEmitter.emit(StreamEvents.REMOVE, key);
+
+    const stream = await this.streamService.getStreamByKey(key);
+
+    if (!stream) {
+      throw new NotFoundException(`Stream with key ${key} not found`);
+    }
+
+    this.eventEmitter.emit(StreamEvents.REMOVE, stream.username);
     return key;
   }
 }
