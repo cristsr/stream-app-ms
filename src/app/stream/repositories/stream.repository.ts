@@ -35,7 +35,7 @@ export class StreamRepository {
     await this.stream.create({ user, key });
   }
 
-  async update(user: string, partial: Record<string, any>): Promise<void> {
-    await this.stream.updateOne({ user }, partial).exec();
+  async update(id: string, partial: Record<string, any>): Promise<void> {
+    await this.stream.updateOne({ id }, partial).exec();
   }
 }
