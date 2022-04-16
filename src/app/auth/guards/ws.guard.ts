@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthService } from 'app/auth/services';
 import { IS_PUBLIC_KEY } from 'app/auth/decorators';
 import { Socket } from 'socket.io';
-import { StreamMessages } from 'app/stream/constants';
+import { StreamEvents } from 'app/stream/constants';
 
 @Injectable()
 export class WsGuard implements CanActivate {
@@ -35,7 +35,7 @@ export class WsGuard implements CanActivate {
     const authorization = socket.handshake.headers.authorization as string;
 
     if (!authorization) {
-      socket.emit(StreamMessages.ERRORS, {
+      socket.emit(StreamEvents.ERRORS, {
         error: 'Unauthorized',
         message: 'Token not provided',
       });
@@ -52,7 +52,7 @@ export class WsGuard implements CanActivate {
     if (!payload) {
       this.logger.error('Jwt token is invalid');
 
-      socket.emit(StreamMessages.ERRORS, {
+      socket.emit(StreamEvents.ERRORS, {
         error: 'Unauthorized',
         message: 'Token is invalid',
       });
