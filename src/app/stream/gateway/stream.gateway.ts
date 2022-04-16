@@ -68,7 +68,7 @@ export class StreamGateway implements OnGatewayConnection {
       `New message from ${payload.username} to room ${payload.room}`,
     );
 
-    socket.broadcast.to(payload.room).emit(StreamEvents.ROOM_MESSAGE, payload);
+    this.server.to(payload.room).emit(StreamEvents.ROOM_MESSAGE, payload);
   }
 
   @SubscribeMessage(StreamEvents.LEAVE_ROOM)
