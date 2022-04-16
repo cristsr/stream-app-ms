@@ -29,7 +29,7 @@ export class StreamService {
       await this.streamRepository.create(user.id, key);
     } else {
       this.logger.log(`Updating stream record for user ${user.id}`);
-      await this.streamRepository.update(user.id, key);
+      await this.streamRepository.update(user.id, { key });
     }
 
     return key;

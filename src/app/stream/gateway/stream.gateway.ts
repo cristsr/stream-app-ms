@@ -10,8 +10,9 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChangeTitleDto, StreamRes } from 'app/stream/dtos';
-import { StreamEvents, StreamMessages } from 'app/stream/constants';
+import { StreamEvents } from 'app/stream/constants';
 import { OnlineStreamRepository } from 'app/stream/repositories';
+import { StreamService } from 'app/stream/services';
 
 @WebSocketGateway({
   namespace: 'stream',
@@ -22,7 +23,10 @@ export class StreamGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  constructor(private onlineStream: OnlineStreamRepository) {}
+  constructor(
+    private onlineStream: OnlineStreamRepository,
+    private streamService: StreamService,
+  ) {}
 
   async handleConnection(socket: Socket) {
     this.logger.log('New socket connected ' + socket.id);
@@ -30,7 +34,7 @@ export class StreamGateway implements OnGatewayConnection {
     socket.emit('streams', streams);
   }
 
-  @SubscribeMessage(StreamMessages.UPDATE_TITLE)
+  @SubscribeMessage(StreamEvents.UPDATE_TITLE)
   async changeTitle(@MessageBody() { username, title }: ChangeTitleDto) {
     this.logger.log(`${username} changed title to ${title}`);
     const stream = this.onlineStream.getByUsername(username);
@@ -44,26 +48,27 @@ export class StreamGateway implements OnGatewayConnection {
     this.server.emit('update-title', stream);
   }
 
-  @SubscribeMessage(StreamMessages.JOIN_ROOM)
+  @SubscribeMessage(StreamEvents.JOIN_ROOM)
   connectChat(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
     this.logger.log('New user joined to room ' + room);
     socket.join(room);
   }
 
-  @SubscribeMessage(StreamMessages.ROOM_MESSAGE)
+  @SubscribeMessage(StreamEvents.ROOM_MESSAGE)
   async sendMessage(
     @ConnectedSocket() socket: Socket,
     @MessageBody() payload: Record<string, string>,
   ) {
     this.logger.log(
-      'New message from ' + socket.id + ' to room ' + payload.room,
+      `New message from ${payload.username} to room ${payload.room}`,
     );
-    this.server.to(payload.room).emit(StreamMessages.ROOM_MESSAGE, payload);
+
+    socket.broadcast.to(payload.room).emit(StreamEvents.ROOM_MESSAGE, payload);
   }
 
-  @SubscribeMessage(StreamMessages.LEAVE_ROOM)
+  @SubscribeMessage(StreamEvents.LEAVE_ROOM)
   leaveRoom(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
-    this.logger.log('User left chat of ' + room);
+    this.logger.log(`Socket ${socket.id} left room ${room}`);
     socket.leave(room);
   }
 
@@ -72,9 +77,6 @@ export class StreamGateway implements OnGatewayConnection {
     this.logger.log(`Add stream ${stream.username}`);
     this.onlineStream.add(stream);
     this.server.emit('add-stream', stream);
-
-    // create chat room
-    // this.server.
   }
 
   @OnEvent(StreamEvents.REMOVE)
@@ -82,11 +84,5 @@ export class StreamGateway implements OnGatewayConnection {
     this.logger.log('Streamer disconnected ' + username);
     this.onlineStream.remove(username);
     this.server.emit('remove-stream', username);
-  }
-
-  run() {
-    this.server.on('', (socket, data) => {
-      console.log(data);
-    });
   }
 }

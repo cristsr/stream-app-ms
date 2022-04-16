@@ -1,12 +1,11 @@
 export enum StreamEvents {
-  ADD = 'STREAM.ADD',
-  REMOVE = 'STREAM.REMOVE',
+  ADD = 'stream.add',
+  REMOVE = 'stream.remove',
+  UPDATE_TITLE = 'stream.updateTitle',
+  ERRORS = 'stream.errors',
+  JOIN_ROOM = 'stream.joinRoom',
+  ROOM_MESSAGE = 'stream.roomMessage',
+  LEAVE_ROOM = 'stream.leaveRoom',
 }
 
-export enum StreamMessages {
-  UPDATE_TITLE = 'STREAM.UPDATE_TITLE',
-  ERRORS = 'STREAM.ERRORS',
-  JOIN_ROOM = 'STREAM.JOIN_ROOM',
-  ROOM_MESSAGE = 'STREAM.ROOM_MESSAGE',
-  LEAVE_ROOM = 'STREAM.LEAVE_ROOM',
-}
+export enum StreamMessages {}
