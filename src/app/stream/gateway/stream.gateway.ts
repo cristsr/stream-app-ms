@@ -39,13 +39,18 @@ export class StreamGateway implements OnGatewayConnection {
     this.logger.log(`${username} changed title to ${title}`);
     const stream = this.onlineStream.getByUsername(username);
 
+    await this.streamService.update(stream.id, { title }).catch((e) => {
+      this.logger.error(`Error updating stream: ${e.message}`);
+      return null;
+    });
+
     if (!stream) {
       this.logger.error(`${username} streamer not found`);
       return;
     }
 
     stream.title = title;
-    this.server.emit('update-title', stream);
+    this.server.emit(StreamEvents.UPDATE_TITLE, stream);
   }
 
   @SubscribeMessage(StreamEvents.JOIN_ROOM)

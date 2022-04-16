@@ -91,4 +91,8 @@ export class StreamService {
 
     return [document.key, null];
   }
+
+  async update(id: string, partial: Record<string, any>) {
+    return this.streamRepository.update(id, partial);
+  }
 }
