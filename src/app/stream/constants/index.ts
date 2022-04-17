@@ -1,6 +1,6 @@
 export enum StreamEvents {
-  ADD = 'add',
-  REMOVE = 'remove',
+  ADD = 'add-stream',
+  REMOVE = 'remove-stream',
   UPDATE_TITLE = 'updateTitle',
   ERRORS = 'errors',
   JOIN_ROOM = 'joinRoom',

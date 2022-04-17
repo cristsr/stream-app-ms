@@ -81,13 +81,13 @@ export class StreamGateway implements OnGatewayConnection {
   addStream(stream: StreamRes) {
     this.logger.log(`Add stream ${stream.username}`);
     this.onlineStream.add(stream);
-    this.server.emit('add-stream', stream);
+    this.server.emit(StreamEvents.ADD, stream);
   }
 
   @OnEvent(StreamEvents.REMOVE)
   removeStream(username: string) {
     this.logger.log('Streamer disconnected ' + username);
     this.onlineStream.remove(username);
-    this.server.emit('remove-stream', username);
+    this.server.emit(StreamEvents.REMOVE, username);
   }
 }
