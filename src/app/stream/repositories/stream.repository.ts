@@ -38,4 +38,14 @@ export class StreamRepository {
   async update(id: string, partial: Record<string, any>): Promise<void> {
     await this.stream.updateOne({ id }, partial).exec();
   }
+
+  findByUsername(username: string): Promise<Stream> {
+    return this.stream
+      .findOne({
+        user: {
+          username,
+        },
+      })
+      .exec();
+  }
 }

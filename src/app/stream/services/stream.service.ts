@@ -8,6 +8,7 @@ import {
   OnlineStreamRepository,
   StreamRepository,
 } from 'app/stream/repositories';
+import { UserRepository } from 'app/auth/repositories';
 
 @Injectable()
 export class StreamService {
@@ -17,6 +18,7 @@ export class StreamService {
     private configService: ConfigService,
     private streamRepository: StreamRepository,
     private onlineStreamRepository: OnlineStreamRepository,
+    private userRepository: UserRepository,
   ) {}
 
   async restoreKey(user: UserDto) {
@@ -66,15 +68,34 @@ export class StreamService {
     return stream;
   }
 
-  getStreamByUsername(username: string): StreamRes {
-    const stream = this.onlineStreamRepository.getByUsername(username);
+  async getStreamByUsername(username: string): Promise<StreamRes> {
+    const user = await this.userRepository.findByUsername(username);
 
-    if (!stream) {
+    if (!user) {
+      this.logger.error(`User with username ${username} not found`);
+      throw new NotFoundException(`User with username ${username} not found`);
+    }
+
+    const document = await this.streamRepository.findByUserId(user.id);
+
+    if (!document) {
       this.logger.error(`Stream not found for username: ${username}`);
       throw new NotFoundException(`Stream ${username} not found`);
     }
 
-    this.logger.log(`Stream found for username: ${username}`);
+    const stream = new StreamRes();
+
+    stream.id = document.id;
+    stream.username = document.user.username;
+    stream.title = document.title;
+    stream.url = this.configService
+      .get(ENV.HLS_SERVER)
+      .concat('/live/{KEY}/index.m3u8')
+      .replace('{KEY}', document.key);
+
+    stream.thumbnail =
+      'https://static-cdn.jtvnw.net/previews-ttv/live_user_valorant-440x248.jpg';
+    stream.userpicture = document.user.image;
 
     return stream;
   }
