@@ -41,4 +41,8 @@ export class StreamRepository {
   ): Promise<Stream> {
     return this.stream.findByIdAndUpdate(id, partial, { new: true }).exec();
   }
+
+  updateByUserId(id: string, partial: Record<string, any>): Promise<any> {
+    return this.stream.updateOne({ user: id }, partial, { new: true }).exec();
+  }
 }

@@ -37,6 +37,7 @@ export class StreamController {
 
   @Get('key/restore')
   restore(@CurrentUser() user: UserDto) {
+    this.logger.log(`Restoring stream key for user ${user.id}`);
     return this.streamService.restoreKey(user);
   }
 
