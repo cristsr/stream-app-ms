@@ -16,10 +16,6 @@ export class UserRepository {
     return this.userModel.create(registerUser);
   }
 
-  findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec();
-  }
-
   async findById(id: string): Promise<User> {
     const user = await this.userModel.findById(id).exec();
 

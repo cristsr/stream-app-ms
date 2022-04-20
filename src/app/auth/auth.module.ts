@@ -31,6 +31,6 @@ import { HttpGuard, WsGuard } from 'app/auth/guards';
     WsGuard,
   ],
   controllers: [AuthController],
-  exports: [AuthService, WsGuard],
+  exports: [AuthService, UserRepository, WsGuard],
 })
 export class AuthModule {}

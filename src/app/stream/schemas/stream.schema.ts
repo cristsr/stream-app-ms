@@ -9,18 +9,21 @@ export class Stream {
   @Prop()
   id: string;
 
+  @Prop({ required: true })
+  key: string;
+
+  @Prop({ default: 'Awesome stream' })
+  title: string;
+
+  @Prop()
+  thumbnail: string;
+
   @Prop({
     required: true,
     type: MongooseSchema.Types.ObjectId,
     ref: User.name,
   })
   user: User;
-
-  @Prop({ required: true })
-  key: string;
-
-  @Prop({ default: 'Awesome stream' })
-  title: string;
 }
 
 export const StreamSchema = SchemaFactory.createForClass(Stream);

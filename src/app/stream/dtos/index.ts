@@ -1,17 +1,14 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { AutoMap } from '@automapper/classes';
 
 export class StreamReq {
   @IsString()
   @AutoMap()
-  id: string;
-
-  @IsString()
-  @AutoMap()
   key: string;
 
   @IsString()
-  user: string;
+  @IsOptional()
+  thumbnail: string;
 }
 
 export class StreamRes {

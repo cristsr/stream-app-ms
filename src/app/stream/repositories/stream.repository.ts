@@ -10,10 +10,6 @@ export class StreamRepository {
     private stream: Model<StreamDocument>,
   ) {}
 
-  findByUserId(id: string): Promise<Stream> {
-    return this.stream.findOne({ user: id }).exec();
-  }
-
   async findByKey(key: string): Promise<Stream> {
     const stream = await this.stream.findOne({ key }).populate('user').exec();
 
@@ -31,21 +27,18 @@ export class StreamRepository {
     });
   }
 
+  findByUserId(id: string): Promise<Stream> {
+    return this.stream.findOne({ user: id }).exec();
+  }
+
   async create(user: string, key: string): Promise<void> {
     await this.stream.create({ user, key });
   }
 
-  async update(id: string, partial: Record<string, any>): Promise<void> {
-    await this.stream.updateOne({ id }, partial).exec();
-  }
-
-  findByUsername(username: string): Promise<Stream> {
-    return this.stream
-      .findOne({
-        user: {
-          username,
-        },
-      })
-      .exec();
+  async findByIdAndUpdate(
+    id: string,
+    partial: Record<string, any>,
+  ): Promise<Stream> {
+    return this.stream.findByIdAndUpdate(id, partial, { new: true }).exec();
   }
 }

@@ -8,7 +8,7 @@ import {
   StreamRepository,
   OnlineStreamRepository,
 } from 'app/stream/repositories';
-import { ChatService } from './services/chat.service';
+import { AuthModule } from 'app/auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +18,7 @@ import { ChatService } from './services/chat.service';
         schema: StreamSchema,
       },
     ]),
+    AuthModule,
   ],
   controllers: [StreamController],
   providers: [
@@ -25,7 +26,6 @@ import { ChatService } from './services/chat.service';
     StreamService,
     StreamRepository,
     OnlineStreamRepository,
-    ChatService,
   ],
 })
 export class StreamModule {}

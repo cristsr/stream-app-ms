@@ -1,16 +1,19 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   Logger,
   NotFoundException,
   Param,
+  Post,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CurrentUser, Public } from 'app/auth/decorators';
 import { StreamEvents } from 'app/stream/constants';
 import { StreamService } from 'app/stream/services';
 import { UserDto } from 'app/auth/dtos';
+import { StreamReq } from 'app/stream/dtos';
 
 @Controller('stream')
 export class StreamController {
@@ -23,8 +26,6 @@ export class StreamController {
 
   @Get('key')
   async getKey(@CurrentUser() user: UserDto) {
-    console.log(user);
-
     const [result, error] = await this.streamService.getStreamKey(user);
 
     if (error) {
@@ -41,22 +42,23 @@ export class StreamController {
 
   @Public()
   @Get(':username')
-  async getStreamByUsername(@Param('username') username: string) {
+  getStreamByUsername(@Param('username') username: string) {
     this.logger.log(`Getting stream for user ${username}`);
     return this.streamService.getStreamByUsername(username);
   }
 
   @Public()
-  @Get('connect/:key')
-  async connectStream(@Param('key') key: string) {
-    this.logger.log(`Connecting stream ${key}`);
-    const stream = await this.streamService.getStreamByKey(key);
+  @Post('connect')
+  async connectStream(@Body() body: StreamReq) {
+    this.logger.log(`Connecting stream ${body.key}`);
+    const stream = await this.streamService.getStream(body.key);
 
     if (!stream) {
-      throw new NotFoundException(`Stream with key ${key} not found`);
+      throw new NotFoundException(`Stream with key ${body.key} not found`);
     }
 
     this.eventEmitter.emit(StreamEvents.ADD, stream);
+
     return stream;
   }
 
@@ -65,7 +67,7 @@ export class StreamController {
   async disconnectStream(@Param('key') key: string) {
     this.logger.log(`Stream ${key} disconnected`);
 
-    const stream = await this.streamService.getStreamByKey(key);
+    const stream = await this.streamService.getStream(key);
 
     if (!stream) {
       throw new NotFoundException(`Stream with key ${key} not found`);
