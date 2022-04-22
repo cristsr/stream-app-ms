@@ -55,6 +55,10 @@ export class StreamRepository {
     criteria: Record<string, any>,
     partial: Record<string, any>,
   ): Promise<void> {
-    await this.stream.updateOne(criteria, partial).exec();
+    try {
+      await this.stream.updateOne(criteria, partial).exec();
+    } catch (e) {
+      return;
+    }
   }
 }
