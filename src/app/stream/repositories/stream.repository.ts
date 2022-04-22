@@ -51,18 +51,10 @@ export class StreamRepository {
     await this.stream.create({ user, key });
   }
 
-  async findByIdAndUpdate(
-    id: string,
+  async update(
+    criteria: Record<string, any>,
     partial: Record<string, any>,
-  ): Promise<Stream> {
-    return this.stream.findByIdAndUpdate(id, partial, { new: true }).exec();
-  }
-
-  updateByUserId(id: string, partial: Record<string, any>): Promise<any> {
-    return this.stream.updateOne({ user: id }, partial, { new: true }).exec();
-  }
-
-  updateByKey(key: string, partial: Record<string, any>) {
-    return this.stream.updateOne({ key }, partial, { new: true }).exec();
+  ): Promise<void> {
+    await this.stream.updateOne(criteria, partial).exec();
   }
 }

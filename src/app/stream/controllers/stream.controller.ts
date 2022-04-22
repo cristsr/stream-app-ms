@@ -54,7 +54,7 @@ export class StreamController {
     this.logger.log(`Connecting stream ${key}`);
 
     // update thumbnail
-    await this.streamService.updateThumbnail(key, thumbnail);
+    await this.streamService.update({ key }, { thumbnail });
 
     const stream = await this.streamService.getStream(key);
 

@@ -39,7 +39,7 @@ export class StreamGateway implements OnGatewayConnection {
     this.logger.log(`${username} changed title to ${title}`);
     const stream = this.onlineStream.getByUsername(username);
 
-    await this.streamService.update(stream.id, { title }).catch((e) => {
+    await this.streamService.update({ id: stream.id }, { title }).catch((e) => {
       this.logger.error(`Error updating stream: ${e.message}`);
       return null;
     });

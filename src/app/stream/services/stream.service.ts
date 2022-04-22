@@ -33,7 +33,7 @@ export class StreamService {
       await this.streamRepository.create(user.id, key);
     } else {
       this.logger.log(`Updating stream record for user ${user.id}`);
-      await this.streamRepository.updateByUserId(user.id, { key });
+      await this.streamRepository.update({ id: user.id }, { key });
     }
 
     return key;
@@ -110,11 +110,7 @@ export class StreamService {
     return stream;
   }
 
-  async update(id: string, partial: Record<string, any>) {
-    return this.streamRepository.findByIdAndUpdate(id, partial);
-  }
-
-  async updateThumbnail(key: string, thumbnail: string) {
-    return this.streamRepository.updateByKey(key, { thumbnail });
+  async update(criteria: Record<string, any>, partial: Record<string, any>) {
+    return this.streamRepository.update(criteria, partial);
   }
 }
