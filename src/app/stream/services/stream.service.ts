@@ -113,4 +113,8 @@ export class StreamService {
   async update(id: string, partial: Record<string, any>) {
     return this.streamRepository.findByIdAndUpdate(id, partial);
   }
+
+  async updateThumbnail(key: string, thumbnail: string) {
+    return this.streamRepository.updateByKey(key, { thumbnail });
+  }
 }

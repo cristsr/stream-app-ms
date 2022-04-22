@@ -50,18 +50,16 @@ export class StreamController {
 
   @Public()
   @Post('connect')
-  async connectStream(@Body() body: StreamReq) {
-    this.logger.log(`Connecting stream ${body.key}`);
+  async connectStream(@Body() { key, thumbnail }: StreamReq) {
+    this.logger.log(`Connecting stream ${key}`);
 
     // update thumbnail
-    await this.streamService.update(body.key, {
-      thumbnail: body.thumbnail,
-    });
+    await this.streamService.updateThumbnail(key, thumbnail);
 
-    const stream = await this.streamService.getStream(body.key);
+    const stream = await this.streamService.getStream(key);
 
     if (!stream) {
-      throw new NotFoundException(`Stream with key ${body.key} not found`);
+      throw new NotFoundException(`Stream with key ${key} not found`);
     }
 
     this.eventEmitter.emit(StreamEvents.ADD, stream);
