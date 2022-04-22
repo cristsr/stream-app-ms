@@ -52,6 +52,12 @@ export class StreamController {
   @Post('connect')
   async connectStream(@Body() body: StreamReq) {
     this.logger.log(`Connecting stream ${body.key}`);
+
+    // update thumbnail
+    await this.streamService.update(body.key, {
+      thumbnail: body.thumbnail,
+    });
+
     const stream = await this.streamService.getStream(body.key);
 
     if (!stream) {

@@ -9,13 +9,14 @@ import {
   StreamRepository,
 } from 'app/stream/repositories';
 import { UserRepository } from 'app/auth/repositories';
-import { Stream } from 'app/stream/schemas';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class StreamService {
   private logger = new Logger(StreamService.name);
 
   constructor(
+    private eventEmitter: EventEmitter2,
     private configService: ConfigService,
     private streamRepository: StreamRepository,
     private onlineStreamRepository: OnlineStreamRepository,
@@ -52,12 +53,8 @@ export class StreamService {
     return [document.key, null];
   }
 
-  async getStream(key, thumbnail?): Promise<StreamRes> {
-    const document = thumbnail
-      ? await this.streamRepository.findByIdAndUpdate(key, {
-          thumbnail,
-        })
-      : await this.streamRepository.findByKey(key);
+  async getStream(key): Promise<StreamRes> {
+    const document = await this.streamRepository.findByKey(key);
 
     if (!document) {
       this.logger.error(`Stream with key ${key} not found`);
@@ -66,7 +63,18 @@ export class StreamService {
 
     this.logger.log(`Stream with key ${key} found`);
 
-    return this.mapStream(document);
+    const stream = new StreamRes();
+    stream.id = document.id;
+    stream.username = document.user.username;
+    stream.title = document.title;
+    stream.userpicture = document.user.image;
+    stream.thumbnail = document.thumbnail;
+    stream.url = this.configService
+      .get(ENV.HLS_SERVER)
+      .concat('/live/{KEY}/index.m3u8')
+      .replace('{KEY}', document.key);
+
+    return stream;
   }
 
   async getStreamByUsername(username: string): Promise<StreamRes> {
@@ -84,29 +92,25 @@ export class StreamService {
       throw new NotFoundException(`Stream ${username} not found`);
     }
 
-    return this.mapStream(document);
+    const stream = new StreamRes();
+    stream.id = document.id;
+    stream.username = document.user.username;
+    stream.title = document.title;
+    stream.userpicture = document.user.image;
+
+    const isOnline = await this.onlineStreamRepository.getByUsername(username);
+
+    if (isOnline) {
+      stream.thumbnail = document.thumbnail;
+      stream.url = this.configService
+        .get(ENV.HLS_SERVER)
+        .concat(`/live/${document.key}/index.m3u8`);
+    }
+
+    return stream;
   }
 
   async update(id: string, partial: Record<string, any>) {
     return this.streamRepository.findByIdAndUpdate(id, partial);
-  }
-
-  private async mapStream(document: Stream): Promise<StreamRes> {
-    const stream = new StreamRes();
-
-    stream.id = document.id;
-    stream.username = document.user.username;
-    stream.title = document.title;
-    stream.url = this.configService
-      .get(ENV.HLS_SERVER)
-      .concat('/live/{KEY}/index.m3u8')
-      .replace('{KEY}', document.key);
-
-    // stream.thumbnail =
-    //   'https://static-cdn.jtvnw.net/previews-ttv/live_user_valorant-440x248.jpg';
-    stream.thumbnail = document.thumbnail;
-    stream.userpicture = document.user.image;
-
-    return stream;
   }
 }

@@ -27,8 +27,24 @@ export class StreamRepository {
     });
   }
 
-  findByUserId(id: string): Promise<Stream> {
-    return this.stream.findOne({ user: id }).exec();
+  async findByUserId(id: string): Promise<Stream> {
+    const stream = await this.stream
+      .findOne({ user: id })
+      .populate('user')
+      .exec();
+
+    if (!stream) {
+      return null;
+    }
+
+    return stream.toObject({
+      virtuals: true,
+      transform: (doc, ret) => {
+        ret.id = ret._id;
+        delete ret._id;
+        return ret;
+      },
+    });
   }
 
   async create(user: string, key: string): Promise<void> {

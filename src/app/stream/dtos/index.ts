@@ -19,16 +19,16 @@ export class StreamRes {
   title: string;
 
   @IsString()
-  url?: string;
-
-  @IsString()
-  thumbnail: string;
-
-  @IsString()
   username: string;
 
   @IsString()
   userpicture: string;
+
+  @IsString()
+  url?: string;
+
+  @IsString()
+  thumbnail?: string;
 }
 
 export class ChangeTitleDto {
