@@ -71,13 +71,13 @@ export class StreamGateway implements OnGatewayConnection {
     this.server.to(payload.room).emit(StreamEvents.ROOM_MESSAGE, payload);
   }
 
-  @SubscribeMessage(StreamEvents.ROOM_MESSAGE)
+  @SubscribeMessage(StreamEvents.ROOM_USERS)
   async roomUsers(
     @ConnectedSocket() socket: Socket,
     @MessageBody() room: string,
   ) {
     const users = this.server.sockets.adapter.rooms.get(room);
-    socket.emit(StreamEvents.ROOM_MESSAGE, users.size);
+    socket.emit(StreamEvents.ROOM_USERS, users.size);
   }
 
   @SubscribeMessage(StreamEvents.LEAVE_ROOM)
