@@ -76,9 +76,9 @@ export class StreamGateway implements OnGatewayConnection {
     @ConnectedSocket() socket: Socket,
     @MessageBody() room: string,
   ) {
-    const users = this.server.sockets.adapter.rooms.get(room);
-    this.logger.log(`Users in room ${room}: ${users.size}`);
-    socket.emit(StreamEvents.ROOM_USERS, users.size);
+    const users = this.server.sockets?.adapter?.rooms?.get(room)?.size ?? 0;
+    this.logger.log(`Users in room ${room}: ${users}`);
+    socket.emit(StreamEvents.ROOM_USERS, users);
   }
 
   @SubscribeMessage(StreamEvents.LEAVE_ROOM)
