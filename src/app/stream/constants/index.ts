@@ -6,4 +6,5 @@ export enum StreamEvents {
   JOIN_ROOM = 'joinRoom',
   ROOM_MESSAGE = 'roomMessage',
   LEAVE_ROOM = 'leaveRoom',
+  ROOM_USERS = 'roomUsers',
 }
