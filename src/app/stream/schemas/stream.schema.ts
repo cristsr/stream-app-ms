@@ -12,7 +12,7 @@ export class Stream {
   @Prop({ required: true })
   key: string;
 
-  @Prop({ default: 'Awesome stream' })
+  @Prop({ default: '' })
   title: string;
 
   @Prop()
