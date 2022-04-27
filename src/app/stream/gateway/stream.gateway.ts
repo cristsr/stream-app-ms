@@ -59,7 +59,15 @@ export class StreamGateway implements OnGatewayConnection {
   @SubscribeMessage(StreamEvents.JOIN_ROOM)
   connectChat(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
     this.logger.log('New user joined to room ' + room);
+    this.onlineStream.addViewer(room);
     socket.join(room);
+  }
+
+  @SubscribeMessage(StreamEvents.LEAVE_ROOM)
+  leaveRoom(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
+    this.logger.log(`Socket ${socket.id} left room ${room}`);
+    this.onlineStream.removeViewer(room);
+    socket.leave(room);
   }
 
   @SubscribeMessage(StreamEvents.ROOM_MESSAGE)
@@ -79,15 +87,9 @@ export class StreamGateway implements OnGatewayConnection {
     @ConnectedSocket() socket: Socket,
     @MessageBody() room: string,
   ) {
-    const users = this.server.sockets?.adapter?.rooms?.get(room)?.size ?? 0;
-    this.logger.log(`Users in room ${room}: ${users}`);
-    socket.emit(StreamEvents.ROOM_USERS, users);
-  }
-
-  @SubscribeMessage(StreamEvents.LEAVE_ROOM)
-  leaveRoom(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
-    this.logger.log(`Socket ${socket.id} left room ${room}`);
-    socket.leave(room);
+    const viewers = this.onlineStream.getViewers(room);
+    this.logger.log(`Users in room ${room}: ${viewers}`);
+    socket.emit(StreamEvents.ROOM_USERS, viewers);
   }
 
   @OnEvent(StreamEvents.ADD)
