@@ -23,9 +23,7 @@ export class UserController {
     @Body() updateUser: UpdateUser,
   ): Promise<UserDto> {
     const user = await this.userService.update(id, updateUser);
-
     this.eventEmitter.emit(StreamEvents.UPDATE_PROFILE, user);
-
     return user;
   }
 }
