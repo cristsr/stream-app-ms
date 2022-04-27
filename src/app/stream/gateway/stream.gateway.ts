@@ -37,7 +37,7 @@ export class StreamGateway implements OnGatewayConnection {
   @SubscribeMessage(StreamEvents.UPDATE_TITLE)
   async changeTitle(@MessageBody() { username, title }: ChangeTitleDto) {
     this.logger.log(`${username} changed title to ${title}`);
-    const stream = this.onlineStream.getByUsername(username);
+    const stream = await this.streamService.getStreamByUsername(username);
 
     await this.streamService.update({ id: stream.id }, { title }).catch((e) => {
       this.logger.error(`Error updating stream: ${e.message}`);
@@ -49,8 +49,14 @@ export class StreamGateway implements OnGatewayConnection {
       return;
     }
 
-    stream.title = title;
-    this.server.emit(StreamEvents.UPDATE_TITLE, stream);
+    if (this.onlineStream.getByUsername(username)) {
+      this.onlineStream.getByUsername(username).title = title;
+    }
+
+    this.server.emit(StreamEvents.UPDATE_TITLE, {
+      username,
+      title,
+    });
   }
 
   @SubscribeMessage(StreamEvents.JOIN_ROOM)
