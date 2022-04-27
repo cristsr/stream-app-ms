@@ -9,7 +9,7 @@ import { StreamEvents } from 'app/stream/constants';
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private eventEmmiter: EventEmitter2,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   @Get('profile')
@@ -24,7 +24,7 @@ export class UserController {
   ): Promise<UserDto> {
     const user = await this.userService.update(id, updateUser);
 
-    this.eventEmmiter.emit(StreamEvents.UPDATE_PROFILE, user);
+    this.eventEmitter.emit(StreamEvents.UPDATE_PROFILE, user);
 
     return user;
   }
