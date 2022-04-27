@@ -37,7 +37,6 @@ export class StreamGateway implements OnGatewayConnection {
 
   @SubscribeMessage(StreamEvents.UPDATE_PROFILE)
   async changeTitle(@MessageBody() { username, title }: ChangeTitleDto) {
-    this.logger.log(`${username} changed title to ${title}`);
     const stream = await this.streamService.getStreamByUsername(username);
 
     this.logger.log(
