@@ -3,7 +3,7 @@ import { UserService } from 'app/user/services';
 import { CurrentUser } from 'app/auth/decorators';
 import { UpdateUser, UserDto } from 'app/user/dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { StreamEvents } from '../../../../dist/app/stream/constants';
+import { StreamEvents } from 'app/stream/constants';
 
 @Controller('user')
 export class UserController {
