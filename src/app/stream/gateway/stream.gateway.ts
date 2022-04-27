@@ -53,10 +53,7 @@ export class StreamGateway implements OnGatewayConnection {
       this.onlineStream.getByUsername(username).title = title;
     }
 
-    this.server.emit(StreamEvents.UPDATE_TITLE, {
-      username,
-      title,
-    });
+    this.server.emit(StreamEvents.UPDATE_TITLE, { ...stream, title });
   }
 
   @SubscribeMessage(StreamEvents.JOIN_ROOM)
