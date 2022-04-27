@@ -50,7 +50,7 @@ export class StreamRepository {
   }
 
   async create(user: string, key: string): Promise<void> {
-    await this.stream.create({ user, key });
+    await this.stream.create({ user, key, title: '' });
   }
 
   async update(
