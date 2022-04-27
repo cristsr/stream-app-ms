@@ -39,18 +39,32 @@ export class StreamService {
     return key;
   }
 
-  async getStreamKey(user: UserDto): Promise<[string, string]> {
-    const document = await this.streamRepository.findByUserId(user.id);
+  async getStreamKey(userId: string): Promise<[string, string]> {
+    const document = await this.streamRepository.findByUserId(userId);
 
     if (!document) {
       const key = randomBytes(10).toString('hex');
-      await this.streamRepository.create(user.id, key);
+      await this.streamRepository.create(userId, key);
       return [key, null];
     }
 
-    this.logger.log(`Stream with user id ${user.id} found`);
+    this.logger.log(`Stream with user id ${userId} found`);
 
     return [document.key, null];
+  }
+
+  async getStreamTitle(userId: string): Promise<[string, string]> {
+    const document = await this.streamRepository.findByUserId(userId);
+
+    if (!document) {
+      const key = randomBytes(10).toString('hex');
+      await this.streamRepository.create(userId, key);
+      return [key, null];
+    }
+
+    this.logger.log(`Stream with user id ${userId} found`);
+
+    return [document.title, null];
   }
 
   async getStreamByKey(key): Promise<StreamRes> {

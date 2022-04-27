@@ -24,14 +24,20 @@ export class StreamController {
     private streamService: StreamService,
   ) {}
 
-  @Get()
-  async getStream(@CurrentUser() { id }: UserDto) {
-    return this.streamService.getStreamByKey(id);
+  @Get('key')
+  async getKey(@CurrentUser() { id }: UserDto) {
+    const [result, error] = await this.streamService.getStreamKey(id);
+
+    if (error) {
+      throw new NotFoundException(`Stream key not found`);
+    }
+
+    return result;
   }
 
-  @Get('key')
-  async getKey(@CurrentUser() user: UserDto) {
-    const [result, error] = await this.streamService.getStreamKey(user);
+  @Get('title')
+  async getStreamTitle(@CurrentUser() { id }: UserDto) {
+    const [result, error] = await this.streamService.getStreamTitle(id);
 
     if (error) {
       throw new NotFoundException(`Stream key not found`);
