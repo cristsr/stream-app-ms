@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Stream, StreamDocument } from 'app/stream/schemas';
 
 @Injectable()
 export class StreamRepository {
+  private logger = new Logger(StreamRepository.name);
+
   constructor(
     @InjectModel(Stream.name)
     private stream: Model<StreamDocument>,
@@ -58,6 +60,7 @@ export class StreamRepository {
     try {
       await this.stream.updateOne(criteria, partial).exec();
     } catch (e) {
+      this.logger.error(`Error updating stream: ${e.message}`);
       return;
     }
   }

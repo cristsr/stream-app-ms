@@ -43,10 +43,7 @@ export class StreamGateway implements OnGatewayConnection {
       `${username} changed title to ${title}. stream: ${stream?.id}`,
     );
 
-    await this.streamService.update({ id: stream.id }, { title }).catch((e) => {
-      this.logger.error(`Error updating stream: ${e.message}`);
-      return null;
-    });
+    await this.streamService.update({ id: stream.id }, { title });
 
     if (!stream) {
       this.logger.error(`${username} streamer not found`);

@@ -124,7 +124,7 @@ export class StreamService {
     return stream;
   }
 
-  async update(criteria: Record<string, any>, partial: Record<string, any>) {
+  update(criteria: Record<string, any>, partial: Record<string, any>) {
     return this.streamRepository.update(criteria, partial);
   }
 }
