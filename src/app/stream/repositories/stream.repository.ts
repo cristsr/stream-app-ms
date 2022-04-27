@@ -58,7 +58,7 @@ export class StreamRepository {
     partial: Record<string, any>,
   ): Promise<void> {
     try {
-      await this.stream.updateOne(criteria, partial).exec();
+      await this.stream.updateOne(criteria, partial, { new: true }).exec();
     } catch (e) {
       this.logger.error(`Error updating stream: ${e.message}`);
       return;

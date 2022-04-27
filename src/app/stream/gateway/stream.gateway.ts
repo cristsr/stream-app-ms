@@ -117,6 +117,10 @@ export class StreamGateway implements OnGatewayConnection {
       return;
     }
 
+    if (this.onlineStream.getByUsername(stream.username)) {
+      this.onlineStream.add(stream);
+    }
+
     this.server.emit(StreamEvents.UPDATE_PROFILE, stream);
   }
 }
