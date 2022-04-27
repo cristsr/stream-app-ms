@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { JwtRes, LoginUserReq, RegisterUserReq } from 'app/auth/dtos';
 import { AuthService } from 'app/auth/services';
-import { CurrentUser, Public } from 'app/auth/decorators';
+import { Public } from 'app/auth/decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -26,11 +26,6 @@ export class AuthController {
   @Post('login')
   async login(@Body() login: LoginUserReq): Promise<JwtRes> {
     return this.authService.login(login);
-  }
-
-  @Get('profile')
-  getProfile(@CurrentUser() user): unknown {
-    return user;
   }
 
   @Public()

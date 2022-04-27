@@ -8,7 +8,7 @@ import {
   StreamRepository,
   OnlineStreamRepository,
 } from 'app/stream/repositories';
-import { AuthModule } from 'app/auth/auth.module';
+import { UserModule } from 'app/user/user.module';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { AuthModule } from 'app/auth/auth.module';
         schema: StreamSchema,
       },
     ]),
-    AuthModule,
+    UserModule,
   ],
   controllers: [StreamController],
   providers: [

@@ -2,14 +2,14 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
 import { ENV } from 'environment';
-import { UserDto } from 'app/auth/dtos';
 import { StreamRes } from 'app/stream/dtos';
 import {
   OnlineStreamRepository,
   StreamRepository,
 } from 'app/stream/repositories';
-import { UserRepository } from 'app/auth/repositories';
+import { UserRepository } from 'app/user/repositories';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserDto } from 'app/user/dto';
 
 @Injectable()
 export class StreamService {
@@ -53,7 +53,7 @@ export class StreamService {
     return [document.key, null];
   }
 
-  async getStream(key): Promise<StreamRes> {
+  async getStreamByKey(key): Promise<StreamRes> {
     const document = await this.streamRepository.findByKey(key);
 
     if (!document) {

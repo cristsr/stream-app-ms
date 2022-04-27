@@ -8,6 +8,7 @@ import { AuthModule } from 'app/auth/auth.module';
 import { StreamModule } from 'app/stream/stream.module';
 import { AppController } from './app.controller';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserModule } from 'app/user/user.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     DatabaseModule,
     AuthModule,
     StreamModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [],

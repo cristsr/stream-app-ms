@@ -1,6 +1,6 @@
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { User } from 'app/auth/schemas/user.schema';
+import { User } from 'app/user/schemas/user.schema';
 
 export type StreamDocument = Stream & Document;
 
