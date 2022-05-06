@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthService } from 'app/auth/services';
 import { AuthController } from 'app/auth/controllers';
-import { User, UserSchema } from 'app/auth/schemas';
-import { UserRepository } from 'app/auth/repositories';
 import { HttpGuard, WsGuard } from 'app/auth/guards';
+import { UserModule } from 'app/user/user.module';
 
 @Module({
   imports: [
@@ -14,16 +12,10 @@ import { HttpGuard, WsGuard } from 'app/auth/guards';
       secret: 'secretKey',
       signOptions: { expiresIn: '1h' },
     }),
-    MongooseModule.forFeature([
-      {
-        name: User.name,
-        schema: UserSchema,
-      },
-    ]),
+    UserModule,
   ],
   providers: [
     AuthService,
-    UserRepository,
     {
       provide: APP_GUARD,
       useClass: HttpGuard,
@@ -31,6 +23,6 @@ import { HttpGuard, WsGuard } from 'app/auth/guards';
     WsGuard,
   ],
   controllers: [AuthController],
-  exports: [AuthService, UserRepository, WsGuard],
+  exports: [AuthService, WsGuard],
 })
 export class AuthModule {}

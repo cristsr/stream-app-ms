@@ -16,12 +16,12 @@ import {
   LoginUserReq,
   RegisterUserReq,
   LoginUserRes,
-  UserDto,
   JwtPayload,
 } from 'app/auth/dtos';
-import { UserRepository } from 'app/auth/repositories';
+import { UserRepository } from 'app/user/repositories';
 import { ENV } from 'environment';
-import { User } from 'app/auth/schemas/user.schema';
+import { User } from 'app/user/schemas/user.schema';
+import { UserDto } from 'app/user/dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -92,7 +92,7 @@ export class AuthService implements OnModuleInit {
       this.config.get(ENV.BCRYPT_ROUNDS),
     );
 
-    await this.userRepository.register(user);
+    await this.userRepository.create(user);
 
     this.logger.log('User registered successfully: ' + user.email);
   }
@@ -110,8 +110,6 @@ export class AuthService implements OnModuleInit {
       this.logger.error(e.message);
       throw new NotFoundException('User not found');
     });
-
-    this.mapper.createMap(User, UserDto);
 
     return this.mapper.map(userDocument, UserDto, User);
   }

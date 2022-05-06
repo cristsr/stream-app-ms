@@ -13,6 +13,7 @@ import { ChangeTitleDto, StreamRes } from 'app/stream/dtos';
 import { StreamEvents } from 'app/stream/constants';
 import { OnlineStreamRepository } from 'app/stream/repositories';
 import { StreamService } from 'app/stream/services';
+import { UserDto } from 'app/user/dto';
 
 @WebSocketGateway({
   namespace: 'stream',
@@ -34,29 +35,40 @@ export class StreamGateway implements OnGatewayConnection {
     socket.emit('streams', streams);
   }
 
-  @SubscribeMessage(StreamEvents.UPDATE_TITLE)
+  @SubscribeMessage(StreamEvents.UPDATE_PROFILE)
   async changeTitle(@MessageBody() { username, title }: ChangeTitleDto) {
-    this.logger.log(`${username} changed title to ${title}`);
-    const stream = this.onlineStream.getByUsername(username);
+    const stream = await this.streamService.getStreamByUsername(username);
 
-    await this.streamService.update(stream.id, { title }).catch((e) => {
-      this.logger.error(`Error updating stream: ${e.message}`);
-      return null;
-    });
+    this.logger.log(
+      `${username} changed title to ${title}. stream: ${stream?.id}`,
+    );
+
+    await this.streamService.update({ _id: stream.id }, { title });
 
     if (!stream) {
       this.logger.error(`${username} streamer not found`);
       return;
     }
 
-    stream.title = title;
-    this.server.emit(StreamEvents.UPDATE_TITLE, stream);
+    if (this.onlineStream.getByUsername(username)) {
+      this.onlineStream.getByUsername(username).title = title;
+    }
+
+    this.server.emit(StreamEvents.UPDATE_PROFILE, { ...stream, title });
   }
 
   @SubscribeMessage(StreamEvents.JOIN_ROOM)
   connectChat(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
     this.logger.log('New user joined to room ' + room);
+    this.onlineStream.addViewer(room);
     socket.join(room);
+  }
+
+  @SubscribeMessage(StreamEvents.LEAVE_ROOM)
+  leaveRoom(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
+    this.logger.log(`Socket ${socket.id} left room ${room}`);
+    this.onlineStream.removeViewer(room);
+    socket.leave(room);
   }
 
   @SubscribeMessage(StreamEvents.ROOM_MESSAGE)
@@ -71,10 +83,14 @@ export class StreamGateway implements OnGatewayConnection {
     this.server.to(payload.room).emit(StreamEvents.ROOM_MESSAGE, payload);
   }
 
-  @SubscribeMessage(StreamEvents.LEAVE_ROOM)
-  leaveRoom(@ConnectedSocket() socket: Socket, @MessageBody() room: string) {
-    this.logger.log(`Socket ${socket.id} left room ${room}`);
-    socket.leave(room);
+  @SubscribeMessage(StreamEvents.ROOM_USERS)
+  async roomUsers(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() room: string,
+  ) {
+    const viewers = this.onlineStream.getViewers(room);
+    this.logger.log(`Users in room ${room}: ${viewers}`);
+    socket.emit(StreamEvents.ROOM_USERS, viewers);
   }
 
   @OnEvent(StreamEvents.ADD)
@@ -89,5 +105,21 @@ export class StreamGateway implements OnGatewayConnection {
     this.logger.log('Streamer disconnected ' + username);
     this.onlineStream.remove(username);
     this.server.emit(StreamEvents.REMOVE, username);
+  }
+
+  @OnEvent(StreamEvents.UPDATE_PROFILE)
+  async updateProfile(user: UserDto) {
+    const stream = await this.streamService.getStreamByUsername(user.username);
+
+    if (!stream) {
+      this.logger.error(`${user.username} streamer not found`);
+      return;
+    }
+
+    if (this.onlineStream.getByUsername(stream.username)) {
+      this.onlineStream.add(stream);
+    }
+
+    this.server.emit(StreamEvents.UPDATE_PROFILE, stream);
   }
 }
